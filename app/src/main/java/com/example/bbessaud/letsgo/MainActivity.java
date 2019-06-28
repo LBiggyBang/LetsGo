@@ -2,6 +2,7 @@ package com.example.bbessaud.letsgo;
 
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
                 if (ActivityCompat.checkSelfPermission(MainActivity.this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
+
                 client.getLastLocation().addOnSuccessListener(MainActivity.this, new OnSuccessListener<Location>() {
                     @Override
                     public void onSuccess(Location location) {
@@ -44,12 +46,21 @@ public class MainActivity extends AppCompatActivity {
                             TextView textView = findViewById(R.id.location);
                             textView.setText((location.toString()));
                         }
-
                     }
                 });
-
             }
         });
+    }
+
+    public void startAsyncTask(View v) {
+
+    }
+
+    private class geolocationTask extends AsyncTask <String> {
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            return null;
+        }
     }
 
     private void requestPermission(){
