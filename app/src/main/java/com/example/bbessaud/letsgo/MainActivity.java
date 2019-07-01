@@ -1,69 +1,94 @@
 package com.example.bbessaud.letsgo;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.os.AsyncTask;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
+public class MainActivity extends AppCompatActivity implements LocationListener {
 
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+    private Context mContext;
+    private LocationManager mLocationManager;
+    protected Location mLocation;
 
-public class MainActivity extends AppCompatActivity {
-
-    private FusedLocationProviderClient client;
+    private boolean isGpsStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext = getApplicationContext();
+        mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+        if (checkLocationPermission() && !isGpsStarted) {
+            startGPS();
+        }
         setContentView(R.layout.activity_main);
 
-        requestPermission();
-
-        client = LocationServices.getFusedLocationProviderClient(this);
+        //TODO
+        //requestPermission();
 
         Button button = findViewById(R.id.getLocation);
         button.setOnClickListener(new View.OnClickListener() {
+
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
 
-                if (ActivityCompat.checkSelfPermission(MainActivity.this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
 
-                client.getLastLocation().addOnSuccessListener(MainActivity.this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-
-                        if(location != null) {
-                            TextView textView = findViewById(R.id.location);
-                            textView.setText((location.toString()));
-                        }
-                    }
-                });
             }
         });
     }
 
-    public void startAsyncTask(View v) {
-
-    }
-
-    private class geolocationTask extends AsyncTask <String> {
-        @Override
-        protected Object doInBackground(Object[] objects) {
-            return null;
+    public void startGPS(){
+        String perm = Manifest.permission.ACCESS_FINE_LOCATION;
+        int permissionCheck = ContextCompat.checkSelfPermission(mContext, perm);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+            mLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            isGpsStarted = true;
         }
     }
 
-    private void requestPermission(){
-        ActivityCompat.requestPermissions(this, new String[]{ACCESS_FINE_LOCATION}, 1);
+    public boolean checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_LOCATION);
+            return false;
+        } else {
+            return true;
+        }
     }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mLocation = location;
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+
+
+    //TODO
+    /*private void requestPermission(){
+        ActivityCompat.requestPermissions(this, new String[]{ACCESS_FINE_LOCATION}, 1);
+    }*/
 }
