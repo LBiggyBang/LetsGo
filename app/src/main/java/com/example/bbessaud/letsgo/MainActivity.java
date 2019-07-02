@@ -16,10 +16,11 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
 
+    private static final int PERMISSIONS_REQUEST_LOCATION = 1234;
+
     private Context mContext;
     private LocationManager mLocationManager;
     protected Location mLocation;
-
     private boolean isGpsStarted = false;
 
     @Override
@@ -32,16 +33,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
         setContentView(R.layout.activity_main);
 
-        //TODO
-        //requestPermission();
-
+        final TextView textView = findViewById(R.id.location);
         Button button = findViewById(R.id.getLocation);
         button.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-
-
+                textView.setText(mLocation.toString());
             }
         });
     }
@@ -85,10 +83,4 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void onProviderDisabled(String provider) {
 
     }
-
-
-    //TODO
-    /*private void requestPermission(){
-        ActivityCompat.requestPermissions(this, new String[]{ACCESS_FINE_LOCATION}, 1);
-    }*/
 }
