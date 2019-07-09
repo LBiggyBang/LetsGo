@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private boolean isGpsStarted = false;
 
     public String destinationType;
-    public int searchDistance = 50;
+    public int searchDistance = 1000;    //TODO change to 50
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
