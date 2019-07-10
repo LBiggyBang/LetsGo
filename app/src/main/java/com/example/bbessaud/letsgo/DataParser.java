@@ -15,10 +15,12 @@ public class DataParser {
     private HashMap<String, String> getPlace(JSONObject googlePlaceJson) {
         HashMap<String, String> googlePlaceMap = new HashMap<>();
         String placeName = "--NA--";
-        String vicinity= "--NA--";
-        String latitude= "";
-        String longitude="";
-        String reference="";
+        String vicinity = "--NA--";
+        String latitude = "";
+        String longitude = "";
+        String placeID = "";
+        String openingHours = "";
+        String photos = "";
 
         Log.d("DATA_PARSER","JSON object = "+googlePlaceJson.toString());
 
@@ -29,17 +31,23 @@ public class DataParser {
             if (!googlePlaceJson.isNull("vicinity")) {
                 vicinity = googlePlaceJson.getString("vicinity");
             }
+            if (!googlePlaceJson.isNull("opening_hours")) {
+                vicinity = googlePlaceJson.getString("openingHours");
+            }
+            if (!googlePlaceJson.isNull("photos")) {
+                vicinity = googlePlaceJson.getString("photos");
+            }
 
             latitude = googlePlaceJson.getJSONObject("geometry").getJSONObject("location").getString("lat");
             longitude = googlePlaceJson.getJSONObject("geometry").getJSONObject("location").getString("lng");
 
-            reference = googlePlaceJson.getString("reference");
+            placeID = googlePlaceJson.getString("place_id");
 
             googlePlaceMap.put("place_name", placeName);
             googlePlaceMap.put("vicinity", vicinity);
             googlePlaceMap.put("lat", latitude);
             googlePlaceMap.put("lng", longitude);
-            googlePlaceMap.put("reference", reference);
+            googlePlaceMap.put("place_id", placeID);
 
 
         }
@@ -53,19 +61,19 @@ public class DataParser {
     private List<HashMap<String, String>> getPlaces(JSONArray jsonArray) {
 
         int count = jsonArray.length();
-        List<HashMap<String, String>> placelist = new ArrayList<>();
+        List<HashMap<String, String>> placeList = new ArrayList<>();
         HashMap<String, String> placeMap = null;
 
-        for(int i = 0; i<count;i++)
+        for(int i = 0; i<count; i++)
         {
             try {
                 placeMap = getPlace((JSONObject) jsonArray.get(i));
-                placelist.add(placeMap);
+                placeList.add(placeMap);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
-        return placelist;
+        return placeList;
     }
 
     public List<HashMap<String, String>> parse(String jsonData)

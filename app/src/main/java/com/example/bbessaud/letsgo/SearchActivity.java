@@ -15,13 +15,17 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends AppCompatActivity implements AsyncResponse {
 
     private String destinationType;
     private int searchDistance;
     private Location mLocation;
-    private ArrayList<String> placesList;
+    private List<HashMap<String, String>> placesList;
+
+    GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +46,7 @@ public class SearchActivity extends AppCompatActivity {
             }
         }
 
-        // Creating a URL
+        // Creating a URL as a String
         String urlString = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=";
         urlString = urlString.concat(Double.toString(mLocation.getLatitude()));
         urlString = urlString.concat(",");
@@ -54,23 +58,22 @@ public class SearchActivity extends AppCompatActivity {
         urlString = urlString.concat("&key=");
         urlString = urlString.concat(getString(R.string.google_maps_key));
         Log.i("MainActivity", urlString);
-        URL url = null;
-        try {
-            url = new URL(urlString);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
 
         // Request a places search
         Object dataTransfer[] = new Object[1];
-        GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData();
+
+        getNearbyPlacesData.delegate = this;
 
         dataTransfer[0] = urlString;
 
         getNearbyPlacesData.execute(dataTransfer);
+
+        // Preparing
     }
 
-    private void generateRandomDestination (String response){
+    @Override
+    public void processFinish(List<HashMap<String, String>> output){
 
+        placesList = output;
     }
 }

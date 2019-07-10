@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 drinkButton.setPressed(false);
                 activityButton.setPressed(false);
 
-                destinationType = "eat";
+                destinationType = "restaurant";
                 return true;
             }
         });

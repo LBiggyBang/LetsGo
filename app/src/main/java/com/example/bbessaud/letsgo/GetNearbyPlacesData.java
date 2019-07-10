@@ -7,13 +7,16 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
-public class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
+public class GetNearbyPlacesData extends AsyncTask<Object, String, List<HashMap<String, String>>> {
 
     private String googlePlacesData;
+
+    public AsyncResponse delegate = null;
+
     String url;
 
     @Override
-    protected String doInBackground(Object... objects) {
+    protected List<HashMap<String, String>> doInBackground(Object... objects) {
 
         url = (String) objects[0];
 
@@ -24,15 +27,16 @@ public class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
             e.printStackTrace();
         }
 
-        return googlePlacesData;
+        List<HashMap<String, String>> nearbyPlaceList;
+        DataParser parser = new DataParser();
+        Log.d("GET_NEARBY_PLACES_DATA", "Called parsing method");
+        nearbyPlaceList = parser.parse(googlePlacesData);
+
+        return nearbyPlaceList;
     }
 
     @Override
-    protected void onPostExecute(String s) {
-
-        List<HashMap<String, String>> nearbyPlaceList;
-        DataParser parser = new DataParser();
-        nearbyPlaceList = parser.parse(s);
-        Log.d("GET_NEARBY_PLACES_DATA", "Called parsing method");
+    protected void onPostExecute(List<HashMap<String, String>> result) {
+        delegate.processFinish(result);
     }
 }
