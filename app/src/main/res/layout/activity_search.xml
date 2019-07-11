@@ -7,6 +7,7 @@
     tools:context=".SearchActivity">
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/loadingLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="visible">
@@ -46,10 +47,14 @@
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
-        android:layout_width="match_parent"
+        android:id="@+id/resultLayout"
+        android:layout_width="375dp"
         android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
         android:visibility="gone"
-        tools:layout_editor_absoluteX="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="16dp">
 
         <ImageView
@@ -59,66 +64,73 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="28dp"
-            app:layout_constraintBottom_toTopOf="@+id/placeName"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.496"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.785"
+            app:layout_constraintVertical_bias="0.141"
             app:srcCompat="@drawable/ic_launcher_background" />
 
         <TextView
             android:id="@+id/placeName"
-            android:layout_width="86dp"
-            android:layout_height="26dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="8dp"
             android:text="Place name"
             android:textAlignment="center"
             android:textSize="20sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/viscinity"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/placePicture"
+            app:layout_constraintVertical_bias="0.044" />
 
         <TextView
-            android:id="@+id/viscinity"
+            android:id="@+id/vicinity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="28dp"
-            android:text="Viscinity"
+            android:layout_marginBottom="8dp"
+            android:text="Vicinity not given"
             android:textAlignment="center"
             android:textSize="18sp"
-            app:layout_constraintBottom_toTopOf="@+id/openingHours"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/placeName"
+            app:layout_constraintVertical_bias="0.0" />
 
         <TextView
             android:id="@+id/openingHours"
             android:layout_width="wrap_content"
-            android:layout_height="18dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="40dp"
-            android:text="Opening hours"
+            android:layout_marginBottom="316dp"
+            android:text="Opening hours not indicated"
             android:textAlignment="center"
-            app:layout_constraintBottom_toTopOf="@+id/goButton"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.508"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/vicinity"
+            app:layout_constraintVertical_bias="0.0" />
 
         <Button
-            android:id="@+id/goButton"
+            android:id="@+id/letsGoButton"
             android:layout_width="110dp"
             android:layout_height="104dp"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="172dp"
+            android:layout_marginBottom="112dp"
             android:text="Let's go!"
             android:textAlignment="center"
             android:textAllCaps="true"
@@ -127,7 +139,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
 
         <Button
             android:id="@+id/retryButton"
@@ -144,8 +158,8 @@
             app:layout_constraintEnd_toStartOf="@+id/resultsButton"
             app:layout_constraintHorizontal_bias="0.339"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/goButton"
-            app:layout_constraintVertical_bias="0.314" />
+            app:layout_constraintTop_toBottomOf="@+id/letsGoButton"
+            app:layout_constraintVertical_bias="0.333" />
 
         <Button
             android:id="@+id/resultsButton"
@@ -159,8 +173,8 @@
             android:textAllCaps="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/goButton"
-            app:layout_constraintVertical_bias="0.314" />
+            app:layout_constraintTop_toBottomOf="@+id/letsGoButton"
+            app:layout_constraintVertical_bias="0.333" />
 
     </android.support.constraint.ConstraintLayout>
 

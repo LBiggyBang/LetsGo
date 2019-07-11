@@ -2,9 +2,15 @@ package com.example.bbessaud.letsgo;
 
 import android.content.Intent;
 import android.location.Location;
+import android.net.Uri;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -17,6 +23,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 public class SearchActivity extends AppCompatActivity implements AsyncResponse {
 
@@ -24,6 +31,14 @@ public class SearchActivity extends AppCompatActivity implements AsyncResponse {
     private int searchDistance;
     private Location mLocation;
     private List<HashMap<String, String>> placesList;
+    private int placesNumber;
+    private String placeId;
+
+    private ConstraintLayout loadingLayout = null;
+    private ConstraintLayout resultLayout = null;
+    private TextView placeName;
+    private TextView vicinity;
+    private TextView openingHours;
 
     GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData();
 
@@ -32,7 +47,65 @@ public class SearchActivity extends AppCompatActivity implements AsyncResponse {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
-        // Retrieve search info
+        // Retrieving view layout
+        loadingLayout = findViewById(R.id.loadingLayout);
+        resultLayout = findViewById(R.id.resultLayout);
+        ImageView placePicture = findViewById(R.id.placePicture);
+        placeName = findViewById(R.id.placeName);
+        vicinity = findViewById(R.id.vicinity);
+        openingHours = findViewById(R.id.openingHours);
+        Button letsGoButton = findViewById(R.id.letsGoButton);
+        Button retryButton = findViewById(R.id.retryButton);
+        Button resultsButton = findViewById(R.id.resultsButton);
+
+        letsGoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("SearchActivity", "Let's Go button clicked");
+
+                Uri gmmIntentUri = Uri.parse("https://www.google.com/maps/search/?api=1&query=Eiffel%20Tower&query_place_id="+placeId);
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(mapIntent);
+                }
+
+            }
+        });
+
+        retryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("SearchActivity", "Retry button clicked");
+
+                loadingLayout.setVisibility(View.VISIBLE);
+                resultLayout.setVisibility(View.GONE);
+
+                int randomPlaceRank = new Random().nextInt(placesNumber);
+
+                //placePicture
+                placeName.setText(placesList.get(randomPlaceRank).get("place_name"));
+                placeName.setText(placesList.get(randomPlaceRank).get("place_name"));
+                if ("" != placesList.get(randomPlaceRank).get("vicinity")) {
+                    vicinity.setText(placesList.get(randomPlaceRank).get("vicinity"));
+                } else {
+                    vicinity.setText("Vicinity not given");
+                }
+                if (placesList.get(randomPlaceRank).get("opening_hours").contains("true")) {
+                    openingHours.setText("Currently open");
+                } else if (placesList.get(randomPlaceRank).get("opening_hours").contains("false")) {
+                    openingHours.setText("Closed for now. You can check opening hours by clicking on Let's Go!");
+                } else {
+                    openingHours.setText("Opening hours not indicated");
+                }
+                placeId = placesList.get(randomPlaceRank).get("place_id");
+
+                loadingLayout.setVisibility(View.GONE);
+                resultLayout.setVisibility(View.VISIBLE);
+            }
+        });
+
+        // Retrieving search info
         Intent intent = getIntent();
         if (null != intent) {
             if (intent.hasExtra("destinationType")) {
@@ -67,13 +140,29 @@ public class SearchActivity extends AppCompatActivity implements AsyncResponse {
         dataTransfer[0] = urlString;
 
         getNearbyPlacesData.execute(dataTransfer);
-
-        // Preparing
     }
 
     @Override
     public void processFinish(List<HashMap<String, String>> output){
 
         placesList = output;
+
+        // Preparing and displaying result
+        placesNumber = placesList.size();
+        int randomPlaceRank = new Random().nextInt(placesNumber);
+
+        //placePicture
+        placeName.setText(placesList.get(randomPlaceRank).get("place_name"));
+        if ("" != placesList.get(randomPlaceRank).get("vicinity")) {
+            vicinity.setText(placesList.get(randomPlaceRank).get("vicinity"));
+        }
+        if (placesList.get(randomPlaceRank).get("opening_hours").contains("true")) {
+            openingHours.setText("Currently open");
+        } else if (placesList.get(randomPlaceRank).get("opening_hours").contains("false")) {
+            openingHours.setText("Closed for now. You can check opening hours by clicking on Let's Go!");
+        }
+        placeId = placesList.get(randomPlaceRank).get("place_id");
+        loadingLayout.setVisibility(View.GONE);
+        resultLayout.setVisibility(View.VISIBLE);
     }
 }

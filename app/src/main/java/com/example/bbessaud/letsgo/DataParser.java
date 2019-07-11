@@ -32,10 +32,10 @@ public class DataParser {
                 vicinity = googlePlaceJson.getString("vicinity");
             }
             if (!googlePlaceJson.isNull("opening_hours")) {
-                vicinity = googlePlaceJson.getString("openingHours");
+                openingHours = googlePlaceJson.getString("opening_hours");
             }
             if (!googlePlaceJson.isNull("photos")) {
-                vicinity = googlePlaceJson.getString("photos");
+                photos = googlePlaceJson.getString("photos");
             }
 
             latitude = googlePlaceJson.getJSONObject("geometry").getJSONObject("location").getString("lat");
@@ -47,6 +47,8 @@ public class DataParser {
             googlePlaceMap.put("vicinity", vicinity);
             googlePlaceMap.put("lat", latitude);
             googlePlaceMap.put("lng", longitude);
+            googlePlaceMap.put("opening_hours", openingHours);
+            googlePlaceMap.put("photos", photos);
             googlePlaceMap.put("place_id", placeID);
 
 
