@@ -1,5 +1,7 @@
 package com.example.bbessaud.letsgo;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
@@ -11,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -46,6 +49,20 @@ public class SearchActivity extends AppCompatActivity implements AsyncResponse {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+
+        // Retrieving search info
+        Intent intent = getIntent();
+        if (null != intent) {
+            if (intent.hasExtra("destinationType")) {
+                destinationType = intent.getStringExtra("destinationType");
+            }
+            if (intent.hasExtra("searchDistance")) {
+                searchDistance = intent.getIntExtra("searchDistance", 100);
+            }
+            if (intent.hasExtra("userLocation")) {
+                mLocation = intent.getParcelableExtra("userLocation");
+            }
+        }
 
         // Retrieving view layout
         loadingLayout = findViewById(R.id.loadingLayout);
@@ -105,20 +122,6 @@ public class SearchActivity extends AppCompatActivity implements AsyncResponse {
             }
         });
 
-        // Retrieving search info
-        Intent intent = getIntent();
-        if (null != intent) {
-            if (intent.hasExtra("destinationType")) {
-                destinationType = intent.getStringExtra("destinationType");
-            }
-            if (intent.hasExtra("searchDistance")) {
-                searchDistance = intent.getIntExtra("searchDistance", 100);
-            }
-            if (intent.hasExtra("userLocation")) {
-                mLocation = intent.getParcelableExtra("userLocation");
-            }
-        }
-
         // Creating a URL as a String
         String urlString = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=";
         urlString = urlString.concat(Double.toString(mLocation.getLatitude()));
@@ -149,20 +152,29 @@ public class SearchActivity extends AppCompatActivity implements AsyncResponse {
 
         // Preparing and displaying result
         placesNumber = placesList.size();
-        int randomPlaceRank = new Random().nextInt(placesNumber);
 
-        //placePicture
-        placeName.setText(placesList.get(randomPlaceRank).get("place_name"));
-        if ("" != placesList.get(randomPlaceRank).get("vicinity")) {
-            vicinity.setText(placesList.get(randomPlaceRank).get("vicinity"));
+        // If there are no results
+        if (placesNumber == 0) {
+            Intent resultIntent = new Intent();
+            setResult(Activity.RESULT_OK, resultIntent);
+            finish();
+
+        } else {
+            int randomPlaceRank = new Random().nextInt(placesNumber);
+
+            //placePicture
+            placeName.setText(placesList.get(randomPlaceRank).get("place_name"));
+            if ("" != placesList.get(randomPlaceRank).get("vicinity")) {
+                vicinity.setText(placesList.get(randomPlaceRank).get("vicinity"));
+            }
+            if (placesList.get(randomPlaceRank).get("opening_hours").contains("true")) {
+                openingHours.setText("Currently open");
+            } else if (placesList.get(randomPlaceRank).get("opening_hours").contains("false")) {
+                openingHours.setText("Closed for now. You can check opening hours by clicking on Let's Go!");
+            }
+            placeId = placesList.get(randomPlaceRank).get("place_id");
+            loadingLayout.setVisibility(View.GONE);
+            resultLayout.setVisibility(View.VISIBLE);
         }
-        if (placesList.get(randomPlaceRank).get("opening_hours").contains("true")) {
-            openingHours.setText("Currently open");
-        } else if (placesList.get(randomPlaceRank).get("opening_hours").contains("false")) {
-            openingHours.setText("Closed for now. You can check opening hours by clicking on Let's Go!");
-        }
-        placeId = placesList.get(randomPlaceRank).get("place_id");
-        loadingLayout.setVisibility(View.GONE);
-        resultLayout.setVisibility(View.VISIBLE);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.bbessaud.letsgo;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -9,6 +10,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatSeekBar;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.SeekBar;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -29,7 +33,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Circle circle;
     private UiSettings mUiSettings;
     private Location mLocation;
-    private float zoomLevel;
+    private int zoomLevel;
+    private int searchRadius;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +47,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if (intent.hasExtra("userLocation")) {
                 mLocation = intent.getParcelableExtra("userLocation");
             }
+            if (intent.hasExtra("searchDistance")) {
+                searchRadius = intent.getIntExtra("searchDistance", 50);
+            }
         }
 
         user = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
@@ -53,11 +61,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         SeekBar circleRadius = findViewById(R.id.radiusSeekBar);
         circleRadius.setMax(99);
-        circleRadius.setProgress(0);
+
+        // Initialize seekbar, map and camera
+        circleRadius.setProgress((searchRadius - 50)/50);
 
         circleRadius.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                circle.setRadius(50*progress + 50);
+                searchRadius = 50 * progress + 50;
+                circle.setRadius(searchRadius);
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(user, getZoomLevel(circle)));
             }
 
@@ -67,6 +78,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void onStopTrackingTouch(final SeekBar seekBar) {
+            }
+        });
+
+        Button validateRadius = findViewById(R.id.validateRadius);
+        validateRadius.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("MapsActivity", "Validate radius button clicked, going to main activity");
+
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra("searchRadius", searchRadius);
+                setResult(Activity.RESULT_OK, resultIntent);
+                finish();
             }
         });
     }
@@ -101,10 +125,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Add its circle
         circle = mMap.addCircle(new CircleOptions()
                 .center(user)
-                .fillColor(Color.BLUE)
-                .strokeColor(Color.WHITE)
-                .strokeWidth(0.5f)
-                .radius(50)
+                .fillColor(0xAAAADAFF)
+                .strokeColor(0xFF5683FF)
+                .strokeWidth(2.5f)
+                .radius(searchRadius)
         );
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(user, getZoomLevel(circle)));
@@ -114,7 +138,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (circle != null){
             float radius = (float) circle.getRadius();
             float scale = radius / 500;
-            zoomLevel = (float) (14 - Math.log(scale) / Math.log(2.0));
+            zoomLevel = (int) (15 - Math.log(scale) / Math.log(2.0));
+            if (zoomLevel >= 16) {
+                zoomLevel = 17;
+            } else if (zoomLevel >= 14) {
+                zoomLevel = 15;
+            }
         }
         return zoomLevel;
     }

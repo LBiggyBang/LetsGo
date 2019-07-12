@@ -17,14 +17,18 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
 
     private static final int PERMISSIONS_REQUEST_LOCATION = 1234;
+    static final int SEARCH_DISTANCE_REQUEST = 1;
+    static final int SEARCH_DESTINATION_REQUEST = 2;
 
     private Button eatButton;
     private Button drinkButton;
     private Button activityButton;
+    private TextView radiusTextView;
 
     private Context mContext;
     private LocationManager mLocationManager;
@@ -32,12 +36,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private boolean isGpsStarted = false;
 
     public String destinationType;
-    public int searchDistance = 1000;    //TODO change to 50
+    public int searchDistance = 50;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Log.i("MainActivity", "onCreate");
         mContext = getApplicationContext();
         mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
@@ -47,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
         setContentView(R.layout.activity_main);
 
-        final TextView radiusTextView = findViewById(R.id.distanceTextView);
+        radiusTextView = findViewById(R.id.distanceTextView);
 
         // Activity type buttons
         eatButton = findViewById(R.id.eatButton);
@@ -94,9 +99,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             public void onClick(View v) {
                 Log.i("MainActivity", "Get radius button clicked, going to map activity");
                 Intent mapIntent = new Intent(MainActivity.this, MapsActivity.class);
-                mapIntent.putExtra("userLocation", mLocation);
 
-                startActivity(mapIntent);
+                Bundle mapExtras = new Bundle();
+                mapExtras.putParcelable("userLocation", mLocation);
+                mapExtras.putInt("searchDistance", searchDistance);
+
+                mapIntent.putExtras(mapExtras);
+
+                startActivityForResult(mapIntent, SEARCH_DISTANCE_REQUEST);
             }
         });
 
@@ -113,9 +123,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     searchExtras.putString("destinationType", destinationType);
                     searchExtras.putInt("searchDistance", searchDistance);
                     searchExtras.putParcelable("userLocation", mLocation);
+
                     searchIntent.putExtras(searchExtras);
 
-                    startActivity(searchIntent);
+                    startActivityForResult(searchIntent, SEARCH_DESTINATION_REQUEST);
                 }
             }
         });
@@ -163,5 +174,31 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     @Override
     public void onProviderDisabled(String provider) {
         Log.i("MainActivity", "Provider disabled");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
+        // Check which request we're responding to
+        if (requestCode == SEARCH_DISTANCE_REQUEST) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                searchDistance = resultIntent.getExtras().getInt("searchRadius");
+                if (searchDistance >= 1000) {
+                    radiusTextView.setText(Integer.toString(searchDistance/1000)+" km");
+                } else {
+                    radiusTextView.setText(Integer.toString(searchDistance)+" m");
+                }
+            }
+        } else if (requestCode == SEARCH_DESTINATION_REQUEST) {
+                // Make sure the request was successful
+                if (resultCode == RESULT_OK) {
+                    Context context = getApplicationContext();
+                    CharSequence text = "No result in defined search range";
+                    int duration = Toast.LENGTH_LONG;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                }
+        }
     }
 }
