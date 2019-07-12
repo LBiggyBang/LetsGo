@@ -22,13 +22,26 @@ android:gravity="center">
         android:layout_weight="4"
         android:orientation="horizontal">
 
-        <SeekBar
-            android:id="@+id/radiusSeekBar"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/radiusText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="100 m"
+                android:textAlignment="center" />
+
+            <SeekBar
+                android:id="@+id/radiusSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/validateRadius"

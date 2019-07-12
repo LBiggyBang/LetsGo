@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -65,11 +66,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Initialize seekbar, map and camera
         circleRadius.setProgress((searchRadius - 50)/50);
 
+        final TextView radiusText = findViewById(R.id.radiusText);
+        if (searchRadius >= 1000) {
+            radiusText.setText(Integer.toString(searchRadius/1000)+" km");
+        } else {
+            radiusText.setText(Integer.toString(searchRadius)+" m");
+        }
+
         circleRadius.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 searchRadius = 50 * progress + 50;
                 circle.setRadius(searchRadius);
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(user, getZoomLevel(circle)));
+
+                if (searchRadius >= 1000) {
+                    radiusText.setText(Integer.toString(searchRadius/1000)+" km");
+                } else {
+                    radiusText.setText(Integer.toString(searchRadius)+" m");
+                }
             }
 
             @Override
