@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,9 +26,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     static final int SEARCH_DISTANCE_REQUEST = 1;
     static final int SEARCH_DESTINATION_REQUEST = 2;
 
-    private Button eatButton;
-    private Button drinkButton;
-    private Button activityButton;
     private TextView radiusTextView;
 
     private Context mContext;
@@ -50,53 +48,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             Log.i("MainActivity", "Starting GPS");
             startGPS();
         }
+
         setContentView(R.layout.activity_main);
 
         radiusTextView = findViewById(R.id.distanceTextView);
-
-        // Activity type buttons
-        eatButton = findViewById(R.id.eatButton);
-        drinkButton = findViewById(R.id.drinkButton);
-        activityButton = findViewById(R.id.activityButton);
-        eatButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                v.setPressed(true);
-                drinkButton.setPressed(false);
-                activityButton.setPressed(false);
-
-                destinationType = "restaurant";
-                return true;
-            }
-        });
-        drinkButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                v.setPressed(true);
-                eatButton.setPressed(false);
-                activityButton.setPressed(false);
-
-                destinationType = "drink";
-                return true;
-            }
-        });
-        activityButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                v.setPressed(true);
-                eatButton.setPressed(false);
-                drinkButton.setPressed(false);
-
-                destinationType = "activity";
-                return true;
-            }
-        });
 
         // Get radius button
         Button getRadiusButton = findViewById(R.id.getRadiusButton);
         getRadiusButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Log.i("MainActivity", "Get radius button clicked, going to map activity");
                 Intent mapIntent = new Intent(MainActivity.this, MapsActivity.class);
 
@@ -115,7 +77,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (null != destinationType && mLocation != null){
+
+                if (null == destinationType) {
+                    Context context = getApplicationContext();
+                    CharSequence text = "Please chose a destination type";
+                    int duration = Toast.LENGTH_LONG;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                } else if (mLocation != null){
                     Log.i("MainActivity", "Search button clicked, going to search activity");
                     Intent searchIntent = new Intent(MainActivity.this, SearchActivity.class);
 
@@ -130,6 +100,27 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 }
             }
         });
+    }
+
+    public void onRadioButtonClicked(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+
+        // Check which radio button was clicked
+        switch(view.getId()) {
+            case R.id.eatButton:
+                if (checked)
+                    destinationType = "restaurant";
+                    break;
+            case R.id.drinkButton:
+                if (checked)
+                    destinationType = "drink";
+                    break;
+            case R.id.activityButton:
+                if (checked)
+                    destinationType = "activity";
+                    break;
+        }
     }
 
     public void startGPS(){
