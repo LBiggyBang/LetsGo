@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -75,6 +77,19 @@ public class SearchActivity extends AppCompatActivity implements AsyncResponse {
         Button retryButton = findViewById(R.id.retryButton);
         Button resultsButton = findViewById(R.id.resultsButton);
 
+        // Setting place picture
+        switch (destinationType){
+            case "restaurant" :
+                placePicture.setImageResource(R.drawable.logo_eat);
+                break;
+            case "bar" :
+                placePicture.setImageResource(R.drawable.logo_drink);
+                break;
+            case "point_of_interest" :
+                placePicture.setImageResource(R.drawable.logo_activity);
+                break;
+        }
+
         letsGoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,7 +101,6 @@ public class SearchActivity extends AppCompatActivity implements AsyncResponse {
                 if (mapIntent.resolveActivity(getPackageManager()) != null) {
                     startActivity(mapIntent);
                 }
-
             }
         });
 
@@ -101,7 +115,6 @@ public class SearchActivity extends AppCompatActivity implements AsyncResponse {
                 int randomPlaceRank = new Random().nextInt(placesNumber);
 
                 //placePicture
-                placeName.setText(placesList.get(randomPlaceRank).get("place_name"));
                 placeName.setText(placesList.get(randomPlaceRank).get("place_name"));
                 if ("" != placesList.get(randomPlaceRank).get("vicinity")) {
                     vicinity.setText(placesList.get(randomPlaceRank).get("vicinity"));
@@ -119,6 +132,22 @@ public class SearchActivity extends AppCompatActivity implements AsyncResponse {
 
                 loadingLayout.setVisibility(View.GONE);
                 resultLayout.setVisibility(View.VISIBLE);
+            }
+        });
+
+        resultsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("SearchActivity", "Results button clicked");
+
+                Intent resultsIntent = new Intent(SearchActivity.this, ResultsActivity.class);
+
+                Bundle resultsExtras = new Bundle();
+                resultsExtras.putString("destinationType", destinationType);
+                resultsExtras.putSerializable("placesList", (Serializable) placesList);
+
+                resultsIntent.putExtras(resultsExtras);
+                startActivity(resultsIntent);
             }
         });
 

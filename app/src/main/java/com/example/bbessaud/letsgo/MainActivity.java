@@ -13,7 +13,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
@@ -59,16 +58,42 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             @Override
             public void onClick(View v) {
 
-                Log.i("MainActivity", "Get radius button clicked, going to map activity");
-                Intent mapIntent = new Intent(MainActivity.this, MapsActivity.class);
+                if (checkLocationPermission()) {
+                    if (!isGpsStarted) {
+                        Log.i("MainActivity", "Starting GPS");
+                        startGPS();
 
-                Bundle mapExtras = new Bundle();
-                mapExtras.putParcelable("userLocation", mLocation);
-                mapExtras.putInt("searchDistance", searchDistance);
+                        Context context = getApplicationContext();
+                        CharSequence text = "Please start GPS";
+                        int duration = Toast.LENGTH_LONG;
 
-                mapIntent.putExtras(mapExtras);
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
+                    } else {
+                        if (null == mLocation) {
+                            Log.i("MainActivity", "Starting GPS");
+                            startGPS();
 
-                startActivityForResult(mapIntent, SEARCH_DISTANCE_REQUEST);
+                            Context context = getApplicationContext();
+                            CharSequence text = "Please start GPS";
+                            int duration = Toast.LENGTH_LONG;
+
+                            Toast toast = Toast.makeText(context, text, duration);
+                            toast.show();
+                        } else {
+                            Log.i("MainActivity", "Get radius button clicked, going to map activity");
+                            Intent mapIntent = new Intent(MainActivity.this, MapsActivity.class);
+
+                            Bundle mapExtras = new Bundle();
+                            mapExtras.putParcelable("userLocation", mLocation);
+                            mapExtras.putInt("searchDistance", searchDistance);
+
+                            mapIntent.putExtras(mapExtras);
+
+                            startActivityForResult(mapIntent, SEARCH_DISTANCE_REQUEST);
+                        }
+                    }
+                }
             }
         });
 
@@ -78,25 +103,51 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             @Override
             public void onClick(View v) {
 
-                if (null == destinationType) {
-                    Context context = getApplicationContext();
-                    CharSequence text = "Please chose a destination type";
-                    int duration = Toast.LENGTH_LONG;
+                if (checkLocationPermission()) {
+                    if (!isGpsStarted) {
+                        Log.i("MainActivity", "Starting GPS");
+                        startGPS();
 
-                    Toast toast = Toast.makeText(context, text, duration);
-                    toast.show();
-                } else if (mLocation != null){
-                    Log.i("MainActivity", "Search button clicked, going to search activity");
-                    Intent searchIntent = new Intent(MainActivity.this, SearchActivity.class);
+                        Context context = getApplicationContext();
+                        CharSequence text = "Please start GPS";
+                        int duration = Toast.LENGTH_LONG;
 
-                    Bundle searchExtras = new Bundle();
-                    searchExtras.putString("destinationType", destinationType);
-                    searchExtras.putInt("searchDistance", searchDistance);
-                    searchExtras.putParcelable("userLocation", mLocation);
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
+                    } else {
+                        if (null == mLocation) {
+                            Log.i("MainActivity", "Starting GPS");
+                            startGPS();
 
-                    searchIntent.putExtras(searchExtras);
+                            Context context = getApplicationContext();
+                            CharSequence text = "Please start GPS";
+                            int duration = Toast.LENGTH_LONG;
 
-                    startActivityForResult(searchIntent, SEARCH_DESTINATION_REQUEST);
+                            Toast toast = Toast.makeText(context, text, duration);
+                            toast.show();
+                        } else {
+                            if (null == destinationType) {
+                                Context context = getApplicationContext();
+                                CharSequence text = "Please chose a destination type";
+                                int duration = Toast.LENGTH_LONG;
+
+                                Toast toast = Toast.makeText(context, text, duration);
+                                toast.show();
+                            } else {
+                                Log.i("MainActivity", "Search button clicked, going to search activity");
+                                Intent searchIntent = new Intent(MainActivity.this, SearchActivity.class);
+
+                                Bundle searchExtras = new Bundle();
+                                searchExtras.putString("destinationType", destinationType);
+                                searchExtras.putInt("searchDistance", searchDistance);
+                                searchExtras.putParcelable("userLocation", mLocation);
+
+                                searchIntent.putExtras(searchExtras);
+
+                                startActivityForResult(searchIntent, SEARCH_DESTINATION_REQUEST);
+                            }
+                        }
+                    }
                 }
             }
         });
@@ -114,11 +165,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     break;
             case R.id.drinkButton:
                 if (checked)
-                    destinationType = "drink";
+                    destinationType = "bar";
                     break;
             case R.id.activityButton:
                 if (checked)
-                    destinationType = "activity";
+                    destinationType = "point_of_interest";
                     break;
         }
     }
